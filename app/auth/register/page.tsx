@@ -11,6 +11,7 @@ import { useRegisterUser } from "@/hooks/register.hook";
 import { useState } from "react";
 import { ApiResponse } from "@/hooks/axios.hook";
 import { toast } from "sonner"
+import Link from "next/link";
 
 const registerSchema = z.object({
   name: z.string().min(1, "Nome obrigatório"),
@@ -127,6 +128,11 @@ export default function RegisterPage() {
             <Button type="submit" className="w-full" loading={isPending}>
               Registrar
             </Button>
+
+            <div className="text-center">
+              <span className="text-neutral-600">Já possui uma conta? </span>
+              <Link href="/auth/login" className="text-black hover:underline cursor-pointer">Faça login</Link>
+            </div>
           </form>
         </div>
       </main>

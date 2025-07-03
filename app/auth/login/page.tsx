@@ -11,6 +11,7 @@ import { useState } from "react";
 import { ApiResponse } from "@/hooks/axios.hook";
 import { toast } from "sonner"
 import { useLoginUser } from "@/hooks/login.hook";
+import Link from "next/link";
 
 const loginSchema = z.object({
   email: z.string().email("E-mail inválido"),
@@ -110,6 +111,12 @@ export default function RegisterPage() {
             <Button type="submit" className="w-full" loading={isPending}>
               Login
             </Button>
+
+            <div className="text-center">
+              <span className="text-neutral-600">Não tem uma conta? </span>
+              <Link href="/auth/register" className="text-black hover:underline cursor-pointer">Cadastre-se
+              </Link>
+            </div>
           </form>
         </div>
       </main>
