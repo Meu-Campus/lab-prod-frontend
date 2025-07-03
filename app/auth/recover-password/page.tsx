@@ -29,6 +29,7 @@ export default function RecoverPassword() {
   const {
     mutate,
     isPending,
+    isSuccess
   } = useRecoveryLink<any, ApiResponse<any>>();
   const [errorList, setErrorList] = useState<string[]>([]);
 
@@ -85,9 +86,15 @@ export default function RecoverPassword() {
               ))
             }
 
-            <Button type="submit" className="w-full" loading={isPending}>
+            <Button type="submit" className="w-full" disabled={isSuccess} loading={isPending}>
               Enviar Link de Recuperação
             </Button>
+
+            {isSuccess && (
+              <p className="text-green-700 text-[13px] font-bold mt-1 text-center">
+                Link de recuperação enviado com sucesso! Verifique seu e-mail.
+              </p>
+            )}
           </form>
         </div>
       </main>

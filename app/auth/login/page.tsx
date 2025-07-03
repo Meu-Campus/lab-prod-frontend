@@ -108,11 +108,17 @@ export default function RegisterPage() {
               ))
             }
 
+            <div className="text-sm">
+              <span className="text-neutral-600">Esqueceu a senha? </span>
+              <Link href="/auth/recover-password" className="text-black hover:underline cursor-pointer">Recuperar Senha
+              </Link>
+            </div>
+
             <Button type="submit" className="w-full" loading={isPending}>
               Login
             </Button>
 
-            <div className="text-center">
+            <div className="text-center text-sm">
               <span className="text-neutral-600">Não tem uma conta? </span>
               <Link href="/auth/register" className="text-black hover:underline cursor-pointer">Cadastre-se
               </Link>
