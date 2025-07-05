@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Inter } from "next/font/google";
 import { QueryProvider } from "@/provider/query-provider";
 import "./globals.css";
-import { Toaster } from "@/components/ui/sonner"
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,22 +14,27 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
   title: "Meu Campus",
   description: "Meu Campus",
 };
 
-export default function RootLayout({ children, }: Readonly<{ children: React.ReactNode; }>) {
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-BR">
-    <body
-      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-    >
-    <QueryProvider>
-      {children}
-      <Toaster position='top-right'/>
-    </QueryProvider>
-    </body>
+      <body className={`${inter.variable} antialiased`}>
+        <QueryProvider>
+          {children}
+          <Toaster position="top-right" />
+        </QueryProvider>
+      </body>
     </html>
   );
 }

@@ -1,4 +1,4 @@
-﻿'use client'
+﻿"use client";
 
 import { SchoolIconComponent } from "@/components/school-icon-component";
 import Image from "next/image";
@@ -44,7 +44,7 @@ export function HeaderComponent(props: IProps) {
         },
         onError: () => {
           toast("Erro ao ler usuário!");
-        }
+        },
       });
     }
   }, []);
@@ -59,7 +59,7 @@ export function HeaderComponent(props: IProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center gap-2">
-            <SchoolIconComponent size={45}/>
+            <SchoolIconComponent size={25} />
             <span className="text-xl text-black">Meu Campus</span>
           </div>
 
@@ -67,15 +67,6 @@ export function HeaderComponent(props: IProps) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <div className="flex-row flex gap-4 items-center">
-                  <div className="flex flex-col justify-center">
-                    <label className="text-sm">
-                      Bem vindo,
-                    </label>
-                    <Label className="text-2xl">
-                      {user?.name ?? "Usuário"}
-                    </Label>
-                  </div>
-
                   <button className="rounded-2xl overflow-hidden w-10 h-10 cursor-pointer">
                     <Image
                       src={user?.avatar ?? "/avatar.png"}
@@ -85,15 +76,18 @@ export function HeaderComponent(props: IProps) {
                       className="object-cover"
                     />
                   </button>
-
+                  <div className="flex flex-col justify-center">
+                    <Label>
+                      {user?.name ?? "Usuário"}
+                    </Label>
+                  </div>
                 </div>
-
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-40">
                 <DropdownMenuItem onClick={() => setEditOpen(true)}>
                   Editar perfil
                 </DropdownMenuItem>
-                <DropdownMenuSeparator/>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem className="text-red-600" onClick={logout}>
                   Sair
                 </DropdownMenuItem>
@@ -108,7 +102,7 @@ export function HeaderComponent(props: IProps) {
                   <DialogTitle>Editar Perfil</DialogTitle>
                 </DialogHeader>
 
-                <UserEditFormComponent/>
+                <UserEditFormComponent />
               </DialogContent>
             </Dialog>
           )}

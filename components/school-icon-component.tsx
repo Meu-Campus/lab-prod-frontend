@@ -2,7 +2,7 @@
   return (
     <i className="text-4xl text-black" aria-hidden="true">
       <svg
-        className="svg-inline--fa fa-graduation-cap" style={{ color: '#2B7FFF' }}
+        className="svg-inline--fa fa-graduation-cap" style={{ color: '#000' }}
         aria-hidden="true"
         focusable="false"
         data-prefix="fas"

@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
 import { HeaderComponent } from "@/components/header-component";
 
 export default function Home() {
   return (
     <div className="min-h-screen w-full">
-      <HeaderComponent loggedIn={true}/>
+      <HeaderComponent loggedIn={true} />
     </div>
   );
 }
