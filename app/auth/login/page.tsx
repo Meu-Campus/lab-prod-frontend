@@ -51,7 +51,7 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen w-full">
-      <HeaderComponent/>
+      <HeaderComponent loggedIn={false}/>
 
       <main id="login-main" className="flex items-center justify-center px-4 py-12 h-full">
         <div className="max-w-md w-full space-y-8">
