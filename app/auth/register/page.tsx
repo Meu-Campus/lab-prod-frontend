@@ -12,6 +12,7 @@ import { useState } from "react";
 import { ApiResponse } from "@/hooks/axios.hook";
 import { toast } from "sonner"
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const registerSchema = z.object({
   name: z.string().min(1, "Nome obrigatório"),
@@ -34,7 +35,7 @@ export default function RegisterPage() {
     isPending,
   } = useRegisterUser<any, ApiResponse<any>>();
   const [errorList, setErrorList] = useState<string[]>([]);
-
+  const router = useRouter();
   const onSubmit = (data: FormData) => {
     setErrorList([]);
     mutate(data, {
@@ -44,6 +45,7 @@ export default function RegisterPage() {
       },
       onSuccess: (data) => {
         toast("Usuário registrado com sucesso!");
+        router.push("/auth/login");
       }
     });
   };

@@ -2,7 +2,7 @@
 
 import { SchoolIconComponent } from "@/components/school-icon-component";
 import Image from "next/image";
-import { useMeInfo } from "@/hooks/me-info.hook";
+import { MeInfo, useMeInfo } from "@/hooks/me-info.hook";
 import { ApiResponse } from "@/hooks/axios.hook";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -21,11 +21,10 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
 
-import { Button } from "@/components/ui/button";
 import { UserEditFormComponent } from "@/components/user-edit-form.component";
+import { Label } from "@/components/ui/label";
 
 interface IProps {
   loggedIn?: boolean;
@@ -34,13 +33,14 @@ interface IProps {
 export function HeaderComponent(props: IProps) {
   const { mutate } = useMeInfo<any, ApiResponse<any>>();
   const [isEditOpen, setEditOpen] = useState(false);
+  const [user, setUser] = useState<MeInfo | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     if (props.loggedIn) {
       mutate(undefined, {
         onSuccess: (data) => {
-          console.log(data);
+          setUser(data.data);
         },
         onError: () => {
           toast("Erro ao ler usuário!");
@@ -59,28 +59,41 @@ export function HeaderComponent(props: IProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center gap-2">
-            <SchoolIconComponent size={45} />
+            <SchoolIconComponent size={45}/>
             <span className="text-xl text-black">Meu Campus</span>
           </div>
 
           {props.loggedIn && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="rounded-full overflow-hidden w-10 h-10">
-                  <Image
-                    src="/avatar.png"
-                    alt="profile"
-                    width={40}
-                    height={40}
-                    className="object-cover"
-                  />
-                </button>
+                <div className="flex-row flex gap-4 items-center">
+                  <div className="flex flex-col justify-center">
+                    <label className="text-sm">
+                      Bem vindo,
+                    </label>
+                    <Label className="text-2xl">
+                      {user?.name ?? "Usuário"}
+                    </Label>
+                  </div>
+
+                  <button className="rounded-2xl overflow-hidden w-10 h-10 cursor-pointer">
+                    <Image
+                      src={user?.avatar ?? "/avatar.png"}
+                      alt="profile"
+                      width={40}
+                      height={40}
+                      className="object-cover"
+                    />
+                  </button>
+
+                </div>
+
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-40">
                 <DropdownMenuItem onClick={() => setEditOpen(true)}>
                   Editar perfil
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
+                <DropdownMenuSeparator/>
                 <DropdownMenuItem className="text-red-600" onClick={logout}>
                   Sair
                 </DropdownMenuItem>
@@ -96,12 +109,6 @@ export function HeaderComponent(props: IProps) {
                 </DialogHeader>
 
                 <UserEditFormComponent/>
-
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setEditOpen(false)}>
-                    Fechar
-                  </Button>
-                </DialogFooter>
               </DialogContent>
             </Dialog>
           )}

@@ -12,6 +12,8 @@ import { ApiResponse } from "@/hooks/axios.hook";
 import { toast } from "sonner"
 import { useLoginUser } from "@/hooks/login.hook";
 import Link from "next/link";
+import Router from "next/router";
+import { useRouter } from "next/navigation";
 
 const loginSchema = z.object({
   email: z.string().email("E-mail inválido"),
@@ -33,6 +35,7 @@ export default function RegisterPage() {
     isPending,
   } = useLoginUser<any, ApiResponse<any>>();
   const [errorList, setErrorList] = useState<string[]>([]);
+  const router = useRouter();
 
   const onSubmit = (data: FormData) => {
     setErrorList([]);
@@ -45,6 +48,7 @@ export default function RegisterPage() {
         localStorage.setItem("token", data.data.data.token);
         console.log(data)
         toast("Login feito com sucesso!");
+        router.push("/")
       }
     });
   };
