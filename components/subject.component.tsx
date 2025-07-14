@@ -34,7 +34,7 @@ export function SubjectComponent({ id }: { id?: string }) {
     onError: () => {
       toast('Erro ao criar')
     }
-  })
+  });
 
   useEffect(() => {
     if (id) {
