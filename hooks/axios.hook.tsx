@@ -1,5 +1,6 @@
 ﻿import axios from 'axios'
 import Router from 'next/router'
+import { useMutation, useQuery, useQueryClient, UseQueryOptions } from "@tanstack/react-query";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -44,4 +45,72 @@ export type ApiResponse<T> = {
 export type ApiHookProps = {
   onSuccess?: (data: any) => void
   onError?: (error: any) => void
+}
+
+
+export function useGet<T>(key: string[], url: string, props?: ApiHookProps) {
+  const api = useAxios()
+  const queryClient = useQueryClient()
+
+  return useQuery({
+    queryKey: key,
+    queryFn: async () => {
+      const res = await api.get<ApiResponse<T>>(url)
+      return res.data
+    },
+    gcTime: 0, // ou o tempo que quiser
+    retry: false,
+    meta: {
+      onSuccess: props?.onSuccess,
+      onError: props?.onError,
+    }
+  })
+}
+
+// POST
+export function usePost<T = any, D = any>(url: string, props?: ApiHookProps) {
+  const api = useAxios()
+  const queryClient = useQueryClient()
+  return useMutation<ApiResponse<T>, any, D>({
+    mutationFn: async (data: D) => {
+      const res = await api.post(url, data)
+      return res.data
+    },
+    onSuccess: data => {
+      props?.onSuccess?.(data)
+    },
+    onError: props?.onError,
+  })
+}
+
+// PUT
+export function usePut<T = any, D = any>(url: string, props?: ApiHookProps) {
+  const api = useAxios()
+  const queryClient = useQueryClient()
+  return useMutation<ApiResponse<T>, any, D>({
+    mutationFn: async (data: D) => {
+      const res = await api.put(url, data)
+      return res.data
+    },
+    onSuccess: data => {
+      props?.onSuccess?.(data)
+    },
+    onError: props?.onError,
+  })
+}
+
+// DELETE
+export function useDelete<T = any>(url: string, props?: ApiHookProps) {
+  const api = useAxios()
+  const queryClient = useQueryClient()
+  return useMutation<ApiResponse<T>, any, void>({
+    mutationFn: async () => {
+      const res = await api.delete(url)
+      return res.data
+    },
+    onSuccess: data => {
+      props?.onSuccess?.(data)
+    },
+    onError: props?.onError,
+  })
 }
