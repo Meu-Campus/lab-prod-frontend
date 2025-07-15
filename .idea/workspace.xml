@@ -4,7 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="69fb130a-7972-4fb4-8216-2dc387d8bfed" name="Changes" comment="fix: melhorando interface" />
+    <list default="true" id="69fb130a-7972-4fb4-8216-2dc387d8bfed" name="Changes" comment="fix: melhorando interface">
+      <change beforePath="$PROJECT_DIR$/app/classes/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/classes/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/subjects/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/subjects/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/tasks/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/tasks/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/teachers/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/teachers/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/school-icon-component.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/school-icon-component.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ui/card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/ui/card.tsx" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

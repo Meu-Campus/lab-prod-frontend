@@ -168,6 +168,7 @@ export default function TasksPage() {
                   setPage((prev) => Math.max(1, prev - 1));
                 }}
                 className={page === 1 ? "pointer-events-none opacity-50" : undefined}
+                disabled={page === 1}
               />
             </PaginationItem>
             {Array.from({ length: totalPages }, (_, i) => (
@@ -192,6 +193,7 @@ export default function TasksPage() {
                   setPage((prev) => Math.min(totalPages, prev + 1));
                 }}
                 className={page === totalPages ? "pointer-events-none opacity-50" : undefined}
+                disabled={page === totalPages}
               />
             </PaginationItem>
           </PaginationContent>

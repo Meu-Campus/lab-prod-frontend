@@ -15,6 +15,7 @@ import { useGetClasses } from "@/hooks/class.hook";
 import { useGetMeInfo } from "@/hooks/me-info.hook";
 import { useGetTasks } from "@/hooks/task.hook";
 import { useGetSubjects } from "@/hooks/subject.hook";
+import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 
 
@@ -27,8 +28,8 @@ export default function Home() {
     <div className="w-full">
       
       <div className="container mx-auto px-4 py-4">
-      <h1 className="text-2xl text-black mb-2">Bem-vindo de volta, {isLoadingMe ? <Skeleton className="h-8 w-32 inline-block" /> : me?.name}</h1>
-      <p className="text-neutral-600 mb-4">
+      <h1 className="text-2xl text-foreground mb-2">Bem-vindo de volta, {isLoadingMe ? <Skeleton className="h-8 w-32 inline-block" /> : me?.name}</h1>
+      <p className="text-muted-foreground mb-4">
         Aqui está um resumo do seu dia acadêmico
       </p>
 
@@ -71,12 +72,11 @@ export default function Home() {
             </CardContent>
           </Card>
 
-          {/* Próximas Tarefas + Calendário */}
+          {/* Próximas Tarefas */}
           <div className="space-y-4">
             <Card>
               <CardContent className="p-3">
-                <h2 className="text-lg font-semibold mb-3">Próximas Tarefas <span
-                  className="float-right text-sm text-blue-600 cursor-pointer">Ver todas</span></h2>
+                <h2 className="text-lg font-semibold mb-3">Próximas Tarefas <Link href="/tasks" className="float-right text-sm text-blue-600 cursor-pointer">Ver todas</Link></h2>
                 <ul className="list-disc pl-4 text-sm space-y-1">
                   {isLoadingTasks ? (
                     <div className="space-y-1">
@@ -95,13 +95,6 @@ export default function Home() {
                     <p className="text-center text-muted-foreground text-sm">Nenhuma tarefa próxima.</p>
                   )}
                 </ul>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-3">
-                <h2 className="text-lg font-semibold mb-3">Janeiro 2025</h2>
-                <Calendar mode="single" selected={new Date(2025, 0, 15)} className="rounded-md border scale-75 origin-top-left"/>
               </CardContent>
             </Card>
           </div>

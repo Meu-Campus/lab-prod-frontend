@@ -161,6 +161,7 @@ export default function TeachersPage() {
               <PaginationPrevious
                 href="#"
                 onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                disabled={page === 1}
               />
             </PaginationItem>
             {Array.from({ length: totalPages }, (_, i) => (
@@ -174,6 +175,7 @@ export default function TeachersPage() {
               <PaginationNext
                 href="#"
                 onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+                disabled={page === totalPages}
               />
             </PaginationItem>
           </PaginationContent>

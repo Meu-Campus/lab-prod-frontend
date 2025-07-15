@@ -1,8 +1,8 @@
 ﻿export function SchoolIconComponent({ size = 70 }: { size?: number }) {
   return (
-    <i className="text-4xl text-black" aria-hidden="true">
+    <i className="text-4xl text-foreground" aria-hidden="true">
       <svg
-        className="svg-inline--fa fa-graduation-cap" style={{ color: '#000' }}
+        className="svg-inline--fa fa-graduation-cap"
         aria-hidden="true"
         focusable="false"
         data-prefix="fas"
