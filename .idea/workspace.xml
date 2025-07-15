@@ -4,16 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="69fb130a-7972-4fb4-8216-2dc387d8bfed" name="Changes" comment="fix: melhorando interface">
-      <change beforePath="$PROJECT_DIR$/app/classes/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/classes/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/subjects/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/subjects/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/tasks/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/tasks/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/teachers/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/teachers/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/layout-wrapper.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/layout-wrapper.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ui/pagination.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/ui/pagination.tsx" afterDir="false" />
-    </list>
+    <list default="true" id="69fb130a-7972-4fb4-8216-2dc387d8bfed" name="Changes" comment="fix: melhorando interface" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -119,7 +110,15 @@
       <option name="project" value="LOCAL" />
       <updated>1752617937484</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="fix: melhorando interface">
+      <option name="closed" value="true" />
+      <created>1752618869750</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1752618869750</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

@@ -67,7 +67,7 @@ export default function TasksPage() {
   return (
     <div className="container mx-auto px-4 pt-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-black">Tarefas</h1>
+        <h1 className="text-3xl font-bold text-foreground">Tarefas</h1>
         <div className="flex items-center space-x-2">
           <div className="relative">
             <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -115,7 +115,7 @@ export default function TasksPage() {
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button variant="ghost" size="icon">
-                          <Trash2 className="h-4 w-4 text-black" />
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>

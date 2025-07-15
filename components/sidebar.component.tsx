@@ -42,7 +42,7 @@ export function Sidebar() {
   ];
 
   return (
-    <div className="flex h-full flex-col overflow-y-auto border-r bg-background pt-4">
+    <div className="flex h-full w-60 flex-col overflow-y-auto border-r bg-background pt-4">
       <nav className="flex-1 space-y-2 px-2">
         {routes.map((route) => (
           <Link
