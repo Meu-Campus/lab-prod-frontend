@@ -19,6 +19,7 @@ export interface Task {
   description: string;
   dueDate: string;
   subject: Subject;
+  subjectId: string;
 }
 
 interface UpdateTaskDto {

@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useGetSubjects } from "@/hooks/subject.hook";
+import { useGetAllSubjects } from "@/hooks/subject.hook";
 import { useCreateTask, useUpdateTask, Task } from "@/hooks/task.hook";
 import { useEffect } from "react";
 
@@ -40,14 +40,14 @@ export function TaskFormComponent({ initialData, onSuccess }: TaskFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      subjectId: initialData?.subject.id || "",
+      subjectId: initialData?.subjectId || "",
       title: initialData?.title || "",
       description: initialData?.description || "",
       dueDate: initialData?.dueDate ? initialData.dueDate.split('T')[0] : "",
     },
   });
 
-  const { data: subjects } = useGetSubjects();
+  const { data: subjects } = useGetAllSubjects();
   const { mutate: createTask, isPending: isCreating } = useCreateTask(() => {
     form.reset();
     onSuccess?.();
@@ -70,10 +70,15 @@ export function TaskFormComponent({ initialData, onSuccess }: TaskFormProps) {
   }, [initialData, form]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    const data = {
+      ...values,
+      dueDate: new Date(values.dueDate).toISOString(),
+    };
+
     if (initialData) {
-      updateTask({ id: initialData.id, ...values });
+      updateTask({ id: initialData.id, ...data });
     } else {
-      createTask(values);
+      createTask(data);
     }
   }
 

@@ -6,8 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="69fb130a-7972-4fb4-8216-2dc387d8bfed" name="Changes" comment="test">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/schedule-class-form.component.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/schedule-class-form.component.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hooks/subject.hook.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/hooks/subject.hook.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/task-form.component.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/task-form.component.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hooks/task.hook.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/hooks/task.hook.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -96,7 +96,7 @@
       <workItem from="1752444710602" duration="5145000" />
       <workItem from="1752533036066" duration="5432000" />
       <workItem from="1752540977441" duration="8402000" />
-      <workItem from="1752613820803" duration="2163000" />
+      <workItem from="1752613820803" duration="3118000" />
     </task>
     <task id="LOCAL-00001" summary="test">
       <option name="closed" value="true" />
