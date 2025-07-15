@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
-import { QueryProvider } from "@/provider/query-provider";
 import "./globals.css";
-import { Toaster } from "@/components/ui/sonner";
+import { QueryProvider } from "@/provider/query-provider";
+import { LayoutWrapper } from "@/components/layout-wrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,10 +29,9 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-BR">
-      <body className={`${inter.variable} antialiased`}>
+      <body className={`${inter.variable} antialiased flex`}>
         <QueryProvider>
-          {children}
-          <Toaster position="top-right" />
+          <LayoutWrapper>{children}</LayoutWrapper>
         </QueryProvider>
       </body>
     </html>

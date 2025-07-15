@@ -8,8 +8,19 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Separator } from "@/components/ui/separator";
 import { CalendarDays, Plus, UserPlus } from "lucide-react";
 import { SubjectComponent } from "@/components/subject.component";
+import { TeacherFormComponent } from "@/components/teacher-form.component";
+import { ScheduleClassFormComponent } from "@/components/schedule-class-form.component";
+import { TaskFormComponent } from "@/components/task-form.component";
+import { useGetClasses } from "@/hooks/class.hook";
+import { useGetTasks } from "@/hooks/task.hook";
+import { useGetSubjects } from "@/hooks/subject.hook";
+import { Skeleton } from "@/components/ui/skeleton";
+
 
 export default function Home() {
+  const { data: classes, isLoading: isLoadingClasses } = useGetClasses();
+  const { data: tasks, isLoading: isLoadingTasks } = useGetTasks();
+  const { data: subjects, isLoading: isLoadingSubjects } = useGetSubjects();
   return (
     <div className="min-h-screen w-full">
       <HeaderComponent loggedIn={true}/>
@@ -19,23 +30,6 @@ export default function Home() {
           Aqui está um resumo do seu dia acadêmico
         </p>
 
-        <div className="flex flex-wrap gap-4 mb-8">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button><Plus className="mr-2 h-4 w-4"/> Adicionar Disciplina</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Nova Disciplina</DialogTitle>
-              </DialogHeader>
-              <SubjectComponent/>
-            </DialogContent>
-          </Dialog>
-
-          <Button variant="outline"><CalendarDays className="mr-2 h-4 w-4"/> Agendar Aula</Button>
-          <Button variant="outline"><Plus className="mr-2 h-4 w-4"/> Nova Tarefa</Button>
-          <Button variant="outline"><UserPlus className="mr-2 h-4 w-4"/> Adicionar Professor</Button>
-        </div>
 
         <div className="grid grid-cols-3 gap-6">
           {/* Aulas de Hoje */}
@@ -46,20 +40,32 @@ export default function Home() {
                 className="text-sm text-muted-foreground float-right">Quinta-feira, 15 de Janeiro</span>
               </h2>
               <div className="space-y-3">
-                {[
-                  { title: "Cálculo I", prof: "Prof. Maria Santos", horario: "08:00 - 10:00", sala: "Sala 201" },
-                  { title: "Física I", prof: "Prof. João Oliveira", horario: "14:00 - 16:00", sala: "Lab 103" },
-                  { title: "Programação", prof: "Prof. Ana Costa", horario: "19:00 - 21:00", sala: "Lab 205" }
-                ].map((aula, i) => (
-                  <Card key={i}>
-                    <CardContent className="p-4">
-                      <div className="font-medium">{aula.title}</div>
-                      <div className="text-sm text-muted-foreground">{aula.prof}</div>
-                      <div className="text-sm">{aula.horario}</div>
-                      <div className="text-sm">{aula.sala}</div>
-                    </CardContent>
-                  </Card>
-                ))}
+                {isLoadingClasses ? (
+                  <div className="space-y-3">
+                    <Skeleton className="h-[100px] w-full"/>
+                    <Skeleton className="h-[100px] w-full"/>
+                    <Skeleton className="h-[100px] w-full"/>
+                  </div>
+                ) : classes?.length ? (
+                  classes.map((aula, i) => (
+                    <Card key={i}>
+                      <CardContent className="p-4">
+                        <div className="font-medium">{aula.subject.name}</div>
+                        <div className="text-sm text-muted-foreground">{aula.teacher.name}</div>
+                        <div className="text-sm">{new Date(aula.startTime).toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })} - {new Date(aula.endTime).toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}</div>
+                        <div className="text-sm">{aula.room}</div>
+                      </CardContent>
+                    </Card>
+                  ))
+                ) : (
+                  <p className="text-center text-muted-foreground">Nenhuma aula para hoje.</p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -71,10 +77,22 @@ export default function Home() {
                 <h2 className="text-lg font-semibold mb-4">Próximas Tarefas <span
                   className="float-right text-sm text-blue-600 cursor-pointer">Ver todas</span></h2>
                 <ul className="list-disc pl-4 text-sm space-y-2">
-                  <li><strong>Entrega do Projeto Final</strong><br/>Programação - Amanhã</li>
-                  <li><strong>Ler Capítulo 3 – Derivadas</strong><br/>Cálculo I - 18 Jan</li>
-                  <li><strong>Exercícios Lista 2</strong><br/>Física I - 20 Jan</li>
-                  <li><strong>Prova Parcial</strong><br/>Cálculo I - 25 Jan</li>
+                  {isLoadingTasks ? (
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-full"/>
+                      <Skeleton className="h-4 w-full"/>
+                      <Skeleton className="h-4 w-full"/>
+                      <Skeleton className="h-4 w-full"/>
+                    </div>
+                  ) : tasks?.length ? (
+                    tasks.map((task, i) => (
+                      <li key={i}>
+                        <strong>{task.title}</strong><br/>{task.subject.name} - {new Date(task.dueDate).toLocaleDateString()}
+                      </li>
+                    ))
+                  ) : (
+                    <p className="text-center text-muted-foreground">Nenhuma tarefa próxima.</p>
+                  )}
                 </ul>
               </CardContent>
             </Card>
@@ -94,24 +112,22 @@ export default function Home() {
             <CardContent className="p-4">
               <h2 className="text-lg font-semibold mb-4">Disciplinas do Semestre</h2>
               <div className="grid grid-cols-3 gap-4 text-sm">
-                <div className="border rounded p-4">
-                  <strong>Cálculo I</strong><br/>
-                  Prof. Maria Santos<br/>
-                  maria.santos@universidade.edu<br/>
-                  <span className="inline-block mt-2">Seg 08:00<br/>Qui 08:00</span>
-                </div>
-                <div className="border rounded p-4">
-                  <strong>Física I</strong><br/>
-                  Prof. João Oliveira<br/>
-                  joao.oliveira@universidade.edu<br/>
-                  <span className="inline-block mt-2">Ter 14:00<br/>Qui 14:00</span>
-                </div>
-                <div className="border rounded p-4">
-                  <strong>Programação</strong><br/>
-                  Prof. Ana Costa<br/>
-                  ana.costa@universidade.edu<br/>
-                  <span className="inline-block mt-2">Qui 19:00<br/>Sex 19:00</span>
-                </div>
+                {isLoadingSubjects ? (
+                  <>
+                    <Skeleton className="h-[100px] w-full"/>
+                    <Skeleton className="h-[100px] w-full"/>
+                    <Skeleton className="h-[100px] w-full"/>
+                  </>
+                ) : subjects?.length ? (
+                  subjects.map((subject, i) => (
+                    <div className="border rounded p-4" key={i}>
+                      <strong>{subject.name}</strong><br/>
+                      {subject.description}<br/>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-center text-muted-foreground col-span-3">Nenhuma disciplina cadastrada.</p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -125,3 +141,15 @@ export default function Home() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+

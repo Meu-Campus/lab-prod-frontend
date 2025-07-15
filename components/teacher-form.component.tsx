@@ -13,39 +13,40 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useCreateSubject, useUpdateSubject, Subject } from "@/hooks/subject.hook";
+import { useCreateTeacher, useUpdateTeacher, Teacher } from "@/hooks/teacher.hook";
 import { useEffect } from "react";
 
 const formSchema = z.object({
   name: z.string().min(1, "O nome é obrigatório."),
-  description: z.string().min(1, "A descrição é obrigatória."),
+  email: z.string().email("O e-mail é inválido."),
 });
 
-interface SubjectFormProps {
-  initialData?: Subject;
+interface TeacherFormProps {
+  initialData?: Teacher;
   onSuccess?: () => void;
 }
 
-export function SubjectComponent({ initialData, onSuccess }: SubjectFormProps) {
+export function TeacherFormComponent({ initialData, onSuccess }: TeacherFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
       name: "",
-      description: "",
+      email: "",
     },
   });
 
-  const { mutate: createSubject, isPending: isCreating } = useCreateSubject(() => {
+  const { mutate: createTeacher, isPending: isCreating } = useCreateTeacher(() => {
     form.reset();
     onSuccess?.();
   });
-  const { mutate: updateSubject, isPending: isUpdating } = useUpdateSubject(() => {
+  const { mutate: updateTeacher, isPending: isUpdating } = useUpdateTeacher(() => {
     onSuccess?.();
   });
 
   const isPending = isCreating || isUpdating;
 
   useEffect(() => {
+    console.log("TeacherFormComponent - initialData changed:", initialData);
     if (initialData) {
       form.reset(initialData);
     }
@@ -53,9 +54,9 @@ export function SubjectComponent({ initialData, onSuccess }: SubjectFormProps) {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     if (initialData) {
-      updateSubject({ id: initialData.id, ...values });
+      updateTeacher({ id: initialData.id, ...values });
     } else {
-      createSubject(values);
+      createTeacher(values);
     }
   }
 
@@ -69,7 +70,7 @@ export function SubjectComponent({ initialData, onSuccess }: SubjectFormProps) {
             <FormItem>
               <FormLabel>Nome</FormLabel>
               <FormControl>
-                <Input placeholder="Ex: Cálculo I" {...field} />
+                <Input placeholder="Ex: João da Silva" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -77,12 +78,12 @@ export function SubjectComponent({ initialData, onSuccess }: SubjectFormProps) {
         />
         <FormField
           control={form.control}
-          name="description"
+          name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Descrição</FormLabel>
+              <FormLabel>E-mail</FormLabel>
               <FormControl>
-                <Input placeholder="Ex: Disciplina de cálculo diferencial e integral" {...field} />
+                <Input placeholder="Ex: joao.silva@example.com" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
