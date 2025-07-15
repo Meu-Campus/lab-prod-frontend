@@ -72,99 +72,75 @@ export default function TeachersPage() {
   };
 
   return (
-    <div className="container mx-auto py-10">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Professores</CardTitle>
-          <div className="flex items-center space-x-2">
-            <div className="relative">
-              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar professor..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-8"
-              />
-            </div>
-            <Button onClick={() => { setSelectedTeacher(null); setIsModalOpen(true); }}>
-              <Plus className="mr-2 h-4 w-4" /> Criar Professor
-            </Button>
+    <div className="container mx-auto px-4 pt-8">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold text-black">Professores</h1>
+        <div className="flex items-center space-x-2">
+          <div className="relative">
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar professor..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-8"
+            />
           </div>
-        </CardHeader>
-        <CardContent>
-          {isLoadingTeachers ? (
-            <Skeleton className="h-[300px] w-full" />
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="text-left">Nome</TableHead>
-                  <TableHead className="text-left">Email</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
+          <Button onClick={() => { setSelectedTeacher(null); setIsModalOpen(true); }}>
+            <Plus className="mr-2 h-4 w-4" /> Criar Professor
+          </Button>
+        </div>
+      </div>
+
+      <div className="rounded-md border">
+        {isLoadingTeachers ? (
+          <Skeleton className="h-[300px] w-full" />
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-left">Nome</TableHead>
+                <TableHead className="text-left">Email</TableHead>
+                <TableHead className="text-right">Ações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {teachers?.map((teacher) => (
+                <TableRow key={teacher.id}>
+                  <TableCell>{teacher.name}</TableCell>
+                  <TableCell>{teacher.email}</TableCell>
+                  <TableCell className="text-right">
+                    <Button variant="ghost" size="icon" onClick={() => handleEditClick(teacher)}>
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <Trash2 className="h-4 w-4 text-black" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Essa ação não pode ser desfeita. Isso excluirá permanentemente o professor
+                            e removerá seus dados de nossos servidores.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleDeleteClick(teacher.id)}>
+                            Continuar
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {teachers?.map((teacher) => (
-                  <TableRow key={teacher.id}>
-                    <TableCell>{teacher.name}</TableCell>
-                    <TableCell>{teacher.email}</TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="icon" onClick={() => handleEditClick(teacher)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Essa ação não pode ser desfeita. Isso excluirá permanentemente o professor
-                              e removerá seus dados de nossos servidores.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDeleteClick(teacher.id)}>
-                              Continuar
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-          <Pagination className="mt-4">
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  href="#"
-                  onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-                />
-              </PaginationItem>
-              {Array.from({ length: totalPages }, (_, i) => (
-                <PaginationItem key={i}>
-                  <PaginationLink href="#" onClick={() => setPage(i + 1)} isActive={page === i + 1}>
-                    {i + 1}
-                  </PaginationLink>
-                </PaginationItem>
               ))}
-              <PaginationItem>
-                <PaginationNext
-                  href="#"
-                  onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </CardContent>
-      </Card>
+            </TableBody>
+          </Table>
+        )}
+      </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent>
@@ -177,6 +153,32 @@ export default function TeachersPage() {
           />
         </DialogContent>
       </Dialog>
+
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <Pagination className="justify-end">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href="#"
+                onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+              />
+            </PaginationItem>
+            {Array.from({ length: totalPages }, (_, i) => (
+              <PaginationItem key={i}>
+                <PaginationLink href="#" onClick={() => setPage(i + 1)} isActive={page === i + 1}>
+                  {i + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+            <PaginationItem>
+              <PaginationNext
+                href="#"
+                onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      </div>
     </div>
   );
 }

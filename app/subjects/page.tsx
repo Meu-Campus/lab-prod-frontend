@@ -121,7 +121,7 @@ export default function SubjectsPage() {
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button variant="ghost" size="icon">
-                          <Trash2 className="h-4 w-4 text-red-500"/>
+                          <Trash2 className="h-4 w-4 text-black"/>
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
@@ -164,7 +164,7 @@ export default function SubjectsPage() {
       </Dialog>
 
       <div className="flex items-center justify-end space-x-2 py-4">
-        <Pagination>
+        <Pagination className="justify-end">
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious

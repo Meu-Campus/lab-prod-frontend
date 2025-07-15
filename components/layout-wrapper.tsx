@@ -11,13 +11,13 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const isAuthPage = pathname.startsWith("/auth/login") || pathname.startsWith("/auth/register");
 
   return (
-    <>
+    <div className="flex min-h-screen w-full">
       {!isAuthPage && <Sidebar />}
-      <div className="flex-1">
+      <div className="flex-1 flex flex-col">
         {!isAuthPage && <HeaderComponent loggedIn={true} />}
         {children}
         <Toaster position="top-right" />
       </div>
-    </>
+    </div>
   );
 }

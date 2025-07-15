@@ -28,8 +28,8 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="pt-BR">
-      <body className={`${inter.variable} antialiased flex`}>
+    <html lang="pt-BR" className="h-full">
+      <body className={`${inter.variable} antialiased flex h-full`}>
         <QueryProvider>
           <LayoutWrapper>{children}</LayoutWrapper>
         </QueryProvider>
