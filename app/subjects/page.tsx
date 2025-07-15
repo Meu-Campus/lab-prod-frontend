@@ -114,7 +114,7 @@ export default function SubjectsPage() {
                   <TableCell className="font-medium">{subject.name}</TableCell>
                   <TableCell>{subject.description}</TableCell>
                   <TableCell className="text-right">
-                    {console.log('Subject ID in map:', subject.id)}
+                    
                     <Button variant="ghost" size="icon" onClick={() => handleEditClick(subject)}>
                       <Edit className="h-4 w-4"/>
                     </Button>

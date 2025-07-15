@@ -46,7 +46,7 @@ export function TeacherFormComponent({ initialData, onSuccess }: TeacherFormProp
   const isPending = isCreating || isUpdating;
 
   useEffect(() => {
-    console.log("TeacherFormComponent - initialData changed:", initialData);
+    
     if (initialData) {
       form.reset(initialData);
     }

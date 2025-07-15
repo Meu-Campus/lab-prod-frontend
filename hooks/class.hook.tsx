@@ -21,6 +21,8 @@ export interface Class {
   room: string;
   teacher: Teacher;
   subject: Subject;
+  teacherId: string;
+  subjectId: string;
 }
 
 interface UpdateClassDto {

@@ -94,3 +94,15 @@ export function useDeleteSubject() {
     },
   });
 }
+
+export function useGetAllSubjects() {
+  const api = useAxios();
+
+  return useQuery<Subject[]>({ 
+    queryKey: ["allSubjects"],
+    queryFn: async () => {
+      const response = await api.get("/subjects/all");
+      return response.data.data;
+    },
+  });
+}

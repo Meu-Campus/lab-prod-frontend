@@ -20,11 +20,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useGetTeachers } from "@/hooks/teacher.hook";
-import { useGetSubjects } from "@/hooks/subject.hook";
+import { useGetAllTeachers, Teacher } from "@/hooks/teacher.hook";
+import { useGetAllSubjects, Subject } from "@/hooks/subject.hook";
 import { useScheduleClass, useUpdateClass, Class } from "@/hooks/class.hook";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect } from "react";
 
+// Schema for form validation
 const formSchema = z.object({
   subjectId: z.string().min(1, "A disciplina é obrigatória."),
   teacherId: z.string().min(1, "O professor é obrigatório."),
@@ -33,25 +35,42 @@ const formSchema = z.object({
   room: z.string().min(1, "A sala é obrigatória."),
 });
 
+type FormValues = z.infer<typeof formSchema>;
+
+// --- Data-dependent Form Component ---
+// This component is only rendered when all its data dependencies are met.
+// This prevents the race condition that was causing the issue.
+
 interface ScheduleClassFormProps {
   initialData?: Class;
+  subjects: Subject[];
+  teachers: Teacher[];
   onSuccess?: () => void;
 }
 
-export function ScheduleClassFormComponent({ initialData, onSuccess }: ScheduleClassFormProps) {
-  const form = useForm<z.infer<typeof formSchema>>({
+function ScheduleClassForm({ initialData, subjects, teachers, onSuccess }: ScheduleClassFormProps) {
+  
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      subjectId: initialData?.subject.id || "",
-      teacherId: initialData?.teacher.id || "",
-      startTime: initialData?.startTime ? initialData.startTime.slice(0, 16) : "",
-      endTime: initialData?.endTime ? initialData.endTime.slice(0, 16) : "",
-      room: initialData?.room || "",
-    },
+    // Set defaultValues directly. This is now safe because this component
+    // is not rendered until `subjects` and `teachers` are loaded.
+    defaultValues: initialData
+      ? {
+        subjectId: initialData.subjectId,
+        teacherId: initialData.teacherId,
+        startTime: initialData.startTime.slice(0, 16),
+        endTime: initialData.endTime.slice(0, 16),
+        room: initialData.room,
+      }
+      : {
+        subjectId: "",
+        teacherId: "",
+        startTime: "",
+        endTime: "",
+        room: "",
+      },
   });
 
-  const { data: teachers } = useGetTeachers();
-  const { data: subjects } = useGetSubjects();
   const { mutate: scheduleClass, isPending: isScheduling } = useScheduleClass(() => {
     form.reset();
     onSuccess?.();
@@ -62,25 +81,26 @@ export function ScheduleClassFormComponent({ initialData, onSuccess }: ScheduleC
 
   const isPending = isScheduling || isUpdating;
 
-  useEffect(() => {
-    if (initialData) {
-      form.reset({
-        subjectId: initialData.subject.id,
-        teacherId: initialData.teacher.id,
-        startTime: initialData.startTime.slice(0, 16),
-        endTime: initialData.endTime.slice(0, 16),
-        room: initialData.room,
-      });
-    }
-  }, [initialData, form]);
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(values: FormValues) {
     if (initialData) {
       updateClass({ id: initialData.id, ...values });
     } else {
       scheduleClass(values);
     }
   }
+
+  useEffect(() => {
+    if (initialData) {
+      form.reset({
+        subjectId: initialData.subjectId,
+        teacherId: initialData.teacherId,
+        startTime: initialData.startTime.slice(0, 16),
+        endTime: initialData.endTime.slice(0, 16),
+        room: initialData.room,
+      });
+    }
+  }, [initialData]);
+
 
   return (
     <Form {...form}>
@@ -91,21 +111,21 @@ export function ScheduleClassFormComponent({ initialData, onSuccess }: ScheduleC
           render={({ field }) => (
             <FormItem>
               <FormLabel>Disciplina</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecione a disciplina" />
+                    <SelectValue placeholder="Selecione a disciplina"/>
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {subjects?.map((subject) => (
+                  {subjects.map((subject) => (
                     <SelectItem key={subject.id} value={subject.id}>
                       {subject.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <FormMessage />
+              <FormMessage/>
             </FormItem>
           )}
         />
@@ -118,18 +138,18 @@ export function ScheduleClassFormComponent({ initialData, onSuccess }: ScheduleC
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecione o professor" />
+                    <SelectValue placeholder="Selecione o professor"/>
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {teachers?.map((teacher) => (
+                  {teachers.map((teacher) => (
                     <SelectItem key={teacher.id} value={teacher.id}>
                       {teacher.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <FormMessage />
+              <FormMessage/>
             </FormItem>
           )}
         />
@@ -142,7 +162,7 @@ export function ScheduleClassFormComponent({ initialData, onSuccess }: ScheduleC
               <FormControl>
                 <Input type="datetime-local" {...field} />
               </FormControl>
-              <FormMessage />
+              <FormMessage/>
             </FormItem>
           )}
         />
@@ -155,7 +175,7 @@ export function ScheduleClassFormComponent({ initialData, onSuccess }: ScheduleC
               <FormControl>
                 <Input type="datetime-local" {...field} />
               </FormControl>
-              <FormMessage />
+              <FormMessage/>
             </FormItem>
           )}
         />
@@ -168,7 +188,7 @@ export function ScheduleClassFormComponent({ initialData, onSuccess }: ScheduleC
               <FormControl>
                 <Input placeholder="Ex: Sala 201" {...field} />
               </FormControl>
-              <FormMessage />
+              <FormMessage/>
             </FormItem>
           )}
         />
@@ -177,5 +197,47 @@ export function ScheduleClassFormComponent({ initialData, onSuccess }: ScheduleC
         </Button>
       </form>
     </Form>
+  );
+}
+
+// --- Loading Skeleton ---
+function FormSkeleton() {
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2"><Skeleton className="h-4 w-20"/><Skeleton className="h-10 w-full"/></div>
+      <div className="space-y-2"><Skeleton className="h-4 w-20"/><Skeleton className="h-10 w-full"/></div>
+      <div className="space-y-2"><Skeleton className="h-4 w-28"/><Skeleton className="h-10 w-full"/></div>
+      <div className="space-y-2"><Skeleton className="h-4 w-24"/><Skeleton className="h-10 w-full"/></div>
+      <div className="space-y-2"><Skeleton className="h-4 w-12"/><Skeleton className="h-10 w-full"/></div>
+      <Skeleton className="h-10 w-32"/>
+    </div>
+  );
+}
+
+// --- Main Exported Component (Data Fetching Orchestrator) ---
+interface ScheduleClassFormComponentProps {
+  initialData?: Class;
+  onSuccess?: () => void;
+}
+
+export function ScheduleClassFormComponent({ initialData, onSuccess }: ScheduleClassFormComponentProps) {
+  const { data: teachers, isLoading: isLoadingTeachers } = useGetAllTeachers();
+  const { data: subjects, isLoading: isLoadingSubjects } = useGetAllSubjects();
+
+  const isLoading = isLoadingSubjects || isLoadingTeachers;
+
+  // Show skeleton until both subjects and teachers are loaded.
+  if (isLoading) {
+    return <FormSkeleton/>;
+  }
+
+  // Render the actual form only when data is available, passing it as props.
+  return (
+    <ScheduleClassForm
+      initialData={initialData}
+      subjects={subjects || []}
+      teachers={teachers || []}
+      onSuccess={onSuccess}
+    />
   );
 }

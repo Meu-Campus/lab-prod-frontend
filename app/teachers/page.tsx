@@ -52,7 +52,7 @@ export default function TeachersPage() {
   const { mutate: deleteTeacher, isPending: isDeleting } = useDeleteTeacher();
 
   const handleEditClick = (teacher: Teacher) => {
-    console.log("Teacher selected for edit:", teacher);
+    
     setSelectedTeacher(teacher);
     setIsModalOpen(true);
   };

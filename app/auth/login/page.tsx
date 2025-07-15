@@ -44,7 +44,7 @@ export default function RegisterPage() {
       },
       onSuccess: (data) => {
         localStorage.setItem("token", data.data.data.token);
-        console.log(data);
+        
         toast("Login feito com sucesso!");
         router.push("/");
       },
