@@ -9,20 +9,24 @@ import { Teacher } from "@/hooks/teacher.hook";
 interface ScheduleClassDto {
   subjectId: string;
   teacherId: string;
-  startTime: string;
-  endTime: string;
+  startTime?: string;
+  endTime?: string;
   room: string;
+  isRecurring?: boolean;
+  dayOfWeek?: string;
 }
 
 export interface Class {
   id: string;
-  startTime: string;
-  endTime: string;
+  startTime?: string;
+  endTime?: string;
   room: string;
   teacher: Teacher;
   subject: Subject;
   teacherId: string;
   subjectId: string;
+  isRecurring?: boolean;
+  dayOfWeek?: string;
 }
 
 interface UpdateClassDto {
@@ -32,6 +36,8 @@ interface UpdateClassDto {
   startTime?: string;
   endTime?: string;
   room?: string;
+  isRecurring?: boolean;
+  dayOfWeek?: string;
 }
 
 export interface Subject {

@@ -10,6 +10,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -26,13 +27,43 @@ import { useScheduleClass, useUpdateClass, Class } from "@/hooks/class.hook";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect } from "react";
 
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+
 // Schema for form validation
 const formSchema = z.object({
   subjectId: z.string().min(1, "A disciplina é obrigatória."),
   teacherId: z.string().min(1, "O professor é obrigatório."),
-  startTime: z.string().min(1, "O horário de início é obrigatório."),
-  endTime: z.string().min(1, "O horário de fim é obrigatório."),
+  startTime: z.string().optional(),
+  endTime: z.string().optional(),
   room: z.string().min(1, "A sala é obrigatória."),
+  isRecurring: z.boolean().default(false).optional(),
+  dayOfWeek: z.string().optional(),
+}).superRefine((data, ctx) => {
+  if (!data.isRecurring) {
+    if (!data.startTime) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "O horário de início é obrigatório para aulas não periódicas.",
+        path: ["startTime"],
+      });
+    }
+    if (!data.endTime) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "O horário de fim é obrigatório para aulas não periódicas.",
+        path: ["endTime"],
+      });
+    }
+  } else {
+    if (!data.dayOfWeek) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "O dia da semana é obrigatório para aulas periódicas.",
+        path: ["dayOfWeek"],
+      });
+    }
+  }
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -58,9 +89,11 @@ function ScheduleClassForm({ initialData, subjects, teachers, onSuccess }: Sched
       ? {
         subjectId: initialData.subjectId,
         teacherId: initialData.teacherId,
-        startTime: initialData.startTime.slice(0, 16),
-        endTime: initialData.endTime.slice(0, 16),
+        startTime: initialData.startTime?.slice(0, 16),
+        endTime: initialData.endTime?.slice(0, 16),
         room: initialData.room,
+        isRecurring: initialData.isRecurring || false,
+        dayOfWeek: initialData.dayOfWeek || "",
       }
       : {
         subjectId: "",
@@ -68,8 +101,12 @@ function ScheduleClassForm({ initialData, subjects, teachers, onSuccess }: Sched
         startTime: "",
         endTime: "",
         room: "",
+        isRecurring: false,
+        dayOfWeek: "",
       },
   });
+
+  const isRecurring = form.watch("isRecurring");
 
   const { mutate: scheduleClass, isPending: isScheduling } = useScheduleClass(() => {
     form.reset();
@@ -82,10 +119,17 @@ function ScheduleClassForm({ initialData, subjects, teachers, onSuccess }: Sched
   const isPending = isScheduling || isUpdating;
 
   function onSubmit(values: FormValues) {
+    const dataToSend = {
+      ...values,
+      startTime: values.startTime || undefined,
+      endTime: values.endTime || undefined,
+      dayOfWeek: values.dayOfWeek || undefined,
+    };
+
     if (initialData) {
-      updateClass({ id: initialData.id, ...values });
+      updateClass({ id: initialData.id, ...dataToSend });
     } else {
-      scheduleClass(values);
+      scheduleClass(dataToSend);
     }
   }
 
@@ -94,12 +138,14 @@ function ScheduleClassForm({ initialData, subjects, teachers, onSuccess }: Sched
       form.reset({
         subjectId: initialData.subjectId,
         teacherId: initialData.teacherId,
-        startTime: initialData.startTime.slice(0, 16),
-        endTime: initialData.endTime.slice(0, 16),
+        startTime: initialData.startTime?.slice(0, 16),
+        endTime: initialData.endTime?.slice(0, 16),
         room: initialData.room,
+        isRecurring: initialData.isRecurring || false,
+        dayOfWeek: initialData.dayOfWeek || "",
       });
     }
-  }, [initialData]);
+  }, [initialData, form]);
 
 
   return (
@@ -155,30 +201,84 @@ function ScheduleClassForm({ initialData, subjects, teachers, onSuccess }: Sched
         />
         <FormField
           control={form.control}
-          name="startTime"
+          name="isRecurring"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Horário de Início</FormLabel>
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm">
               <FormControl>
-                <Input type="datetime-local" {...field} />
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
               </FormControl>
-              <FormMessage/>
+              <div className="space-y-1 leading-none">
+                <FormLabel>
+                  Aula Periódica
+                </FormLabel>
+                <FormDescription>
+                  Marque se esta aula se repete semanalmente.
+                </FormDescription>
+              </div>
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="endTime"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Horário de Fim</FormLabel>
-              <FormControl>
-                <Input type="datetime-local" {...field} />
-              </FormControl>
-              <FormMessage/>
-            </FormItem>
-          )}
-        />
+
+        {isRecurring ? (
+          <FormField
+            control={form.control}
+            name="dayOfWeek"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Dia da Semana</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o dia da semana" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="MONDAY">Segunda-feira</SelectItem>
+                    <SelectItem value="TUESDAY">Terça-feira</SelectItem>
+                    <SelectItem value="WEDNESDAY">Quarta-feira</SelectItem>
+                    <SelectItem value="THURSDAY">Quinta-feira</SelectItem>
+                    <SelectItem value="FRIDAY">Sexta-feira</SelectItem>
+                    <SelectItem value="SATURDAY">Sábado</SelectItem>
+                    <SelectItem value="SUNDAY">Domingo</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        ) : (
+          <>
+            <FormField
+              control={form.control}
+              name="startTime"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Horário de Início</FormLabel>
+                  <FormControl>
+                    <Input type="datetime-local" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="endTime"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Horário de Fim</FormLabel>
+                  <FormControl>
+                    <Input type="datetime-local" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        )}
         <FormField
           control={form.control}
           name="room"
@@ -188,7 +288,7 @@ function ScheduleClassForm({ initialData, subjects, teachers, onSuccess }: Sched
               <FormControl>
                 <Input placeholder="Ex: Sala 201" {...field} />
               </FormControl>
-              <FormMessage/>
+              <FormMessage />
             </FormItem>
           )}
         />
