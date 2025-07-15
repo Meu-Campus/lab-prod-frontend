@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { Sidebar } from "@/components/sidebar.component";
 import { HeaderComponent } from "@/components/header-component.tsx";
+import { SchoolIconComponent } from "@/components/school-icon-component";
 import { Toaster } from "@/components/ui/sonner";
 
 export function LayoutWrapper({ children }: { children: React.ReactNode }) {

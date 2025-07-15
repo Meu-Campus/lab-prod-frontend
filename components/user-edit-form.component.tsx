@@ -10,7 +10,7 @@ import Image from "next/image";
 import { z } from "zod";
 import { useUpdateMe } from "@/hooks/update-me.hook";
 import { ApiResponse } from "@/hooks/axios.hook";
-import { MeInfo, useMeInfo } from "@/hooks/me-info.hook";
+import { MeInfo, useGetMeInfo } from "@/hooks/me-info.hook";
 import { toast } from "sonner";
 
 const userSchema = z.object({
@@ -24,7 +24,7 @@ type UserFormData = z.infer<typeof userSchema>;
 export function UserEditFormComponent() {
   const [preview, setPreview] = useState<string | undefined>();
   const { mutate, isPending } = useUpdateMe<any, ApiResponse<any>>();
-  const { mutate: getMeInfo } = useMeInfo<any, ApiResponse<any>>();
+  const { data: meInfo, isLoading: isLoadingMeInfo } = useGetMeInfo();
 
   const {
     register,
@@ -52,17 +52,15 @@ export function UserEditFormComponent() {
   }, [avatarFile]);
 
   useEffect(() => {
-    getMeInfo(undefined, {
-      onSuccess: (res: { data: MeInfo }) => {
-        setValue("name", res.data.name);
-        setValue("email", res.data.email);
+    if (meInfo) {
+      setValue("name", meInfo.name);
+      setValue("email", meInfo.email);
 
-        if (res.data.avatar) {
-          setPreview(res.data.avatar);
-        }
-      },
-    });
-  }, []);
+      if (meInfo.avatar) {
+        setPreview(meInfo.avatar);
+      }
+    }
+  }, [meInfo, setValue]);
 
   function submit(data: UserFormData) {
     const form = new FormData()

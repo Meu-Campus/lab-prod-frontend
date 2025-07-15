@@ -2,10 +2,8 @@
 
 import { SchoolIconComponent } from "@/components/school-icon-component";
 import Image from "next/image";
-import { MeInfo, useMeInfo } from "@/hooks/me-info.hook";
-import { ApiResponse } from "@/hooks/axios.hook";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { useGetMeInfo } from "@/hooks/me-info.hook";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import {
@@ -25,29 +23,16 @@ import {
 
 import { UserEditFormComponent } from "@/components/user-edit-form.component";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface IProps {
   loggedIn?: boolean;
 }
 
-export function HeaderComponent(props: IProps) {
-  const { mutate } = useMeInfo<any, ApiResponse<any>>();
+export function HeaderComponent({ loggedIn }: IProps) {
+  const { data: user, isLoading, isError } = useGetMeInfo();
   const [isEditOpen, setEditOpen] = useState(false);
-  const [user, setUser] = useState<MeInfo | null>(null);
   const router = useRouter();
-
-  useEffect(() => {
-    if (props.loggedIn) {
-      mutate(undefined, {
-        onSuccess: (data) => {
-          setUser(data.data);
-        },
-        onError: () => {
-          toast("Erro ao ler usuário!");
-        },
-      });
-    }
-  }, []);
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -63,22 +48,26 @@ export function HeaderComponent(props: IProps) {
             <span className="text-xl text-black">Meu Campus</span>
           </div>
 
-          {props.loggedIn && (
+          {loggedIn && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <div className="flex-row flex gap-4 items-center">
                   <button className="rounded-2xl overflow-hidden w-10 h-10 cursor-pointer">
-                    <Image
-                      src={user?.avatar ?? "/avatar.png"}
-                      alt="profile"
-                      width={40}
-                      height={40}
-                      className="object-cover"
-                    />
+                    {isLoading ? (
+                      <Skeleton className="h-10 w-10 rounded-full" />
+                    ) : (
+                      <Image
+                        src={user?.avatar ?? "/avatar.png"}
+                        alt="profile"
+                        width={40}
+                        height={40}
+                        className="object-cover"
+                      />
+                    )}
                   </button>
                   <div className="flex flex-col justify-center">
                     <Label>
-                      {user?.name ?? "Usuário"}
+                      {isLoading ? <Skeleton className="h-4 w-20" /> : user?.name ?? "Usuário"}
                     </Label>
                   </div>
                 </div>
@@ -95,7 +84,7 @@ export function HeaderComponent(props: IProps) {
             </DropdownMenu>
           )}
 
-          {props.loggedIn && (
+          {loggedIn && (
             <Dialog open={isEditOpen} onOpenChange={setEditOpen}>
               <DialogContent>
                 <DialogHeader>

@@ -1,20 +1,23 @@
-﻿import { useAxios } from "@/hooks/axios.hook";
-import { useMutation } from "@tanstack/react-query";
-import { AxiosError, AxiosResponse } from "axios";
+import { useAxios } from "@/hooks/axios.hook";
+import { useQuery } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 
 export type MeInfo = {
-  _id: string;
+  id: string;
   name: string;
   email: string;
   avatar?: string;
 }
 
-export function useMeInfo<R, E>() {
-  const axios = useAxios();
+export function useGetMeInfo() {
+  const api = useAxios();
 
-  return useMutation<AxiosResponse<R, any>, AxiosError<E>, any, unknown>({
-    mutationFn: async () => {
-      return (await axios.get("/user/me")).data;
+  return useQuery<MeInfo, AxiosError>({
+    queryKey: ["me"],
+    queryFn: async () => {
+      const response = await api.get("/user/me");
+      return response.data.data;
     },
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
 }

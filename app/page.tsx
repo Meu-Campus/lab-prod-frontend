@@ -12,20 +12,22 @@ import { TeacherFormComponent } from "@/components/teacher-form.component";
 import { ScheduleClassFormComponent } from "@/components/schedule-class-form.component";
 import { TaskFormComponent } from "@/components/task-form.component";
 import { useGetClasses } from "@/hooks/class.hook";
+import { useGetMeInfo } from "@/hooks/me-info.hook";
 import { useGetTasks } from "@/hooks/task.hook";
 import { useGetSubjects } from "@/hooks/subject.hook";
 import { Skeleton } from "@/components/ui/skeleton";
 
 
 export default function Home() {
+  const { data: me, isLoading: isLoadingMe } = useGetMeInfo();
   const { data: classes, isLoading: isLoadingClasses } = useGetClasses();
   const { data: tasks, isLoading: isLoadingTasks } = useGetTasks();
   const { data: subjects, isLoading: isLoadingSubjects } = useGetSubjects();
   return (
     <div className="min-h-screen w-full">
-      <HeaderComponent loggedIn={true}/>
+      
       <div className="container mx-auto px-4 pt-8">
-        <h1 className="text-2xl text-black mb-2">Bem-vindo de volta, João!</h1>
+        <h1 className="text-2xl text-black mb-2">Bem-vindo de volta, {isLoadingMe ? <Skeleton className="h-8 w-32 inline-block" /> : me?.name}</h1>
         <p className="text-neutral-600 mb-6">
           Aqui está um resumo do seu dia acadêmico
         </p>
