@@ -11,6 +11,7 @@ interface CreateTaskDto {
   title: string;
   description: string;
   dueDate: string;
+  isDelivered?: boolean;
 }
 
 export interface Task {
@@ -20,6 +21,7 @@ export interface Task {
   dueDate: string;
   subject: Subject;
   subjectId: string;
+  isDelivered: boolean;
 }
 
 interface UpdateTaskDto {
@@ -28,6 +30,7 @@ interface UpdateTaskDto {
   title?: string;
   description?: string;
   dueDate?: string;
+  isDelivered?: boolean;
 }
 
 export function useCreateTask(onSuccessCallback?: () => void) {

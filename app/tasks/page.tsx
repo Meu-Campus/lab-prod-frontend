@@ -136,7 +136,7 @@ export default function TasksPage() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={4} className="h-24 text-center">
+                <TableCell colSpan={5} className="h-24 text-center">
                   Nenhuma tarefa cadastrada.
                 </TableCell>
               </TableRow>

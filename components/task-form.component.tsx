@@ -24,30 +24,46 @@ import { useGetAllSubjects } from "@/hooks/subject.hook";
 import { useCreateTask, useUpdateTask, Task } from "@/hooks/task.hook";
 import { useEffect } from "react";
 
+import { Checkbox } from "@/components/ui/checkbox";
+import { FormDescription } from "./ui/form";
+import { Skeleton } from "@/components/ui/skeleton";
+
 const formSchema = z.object({
   subjectId: z.string().min(1, "A disciplina é obrigatória."),
   title: z.string().min(1, "O título é obrigatório."),
   description: z.string().optional(),
   dueDate: z.string().min(1, "A data de entrega é obrigatória."),
+  isDelivered: z.boolean().optional(),
 });
+
+type FormValues = z.infer<typeof formSchema>;
 
 interface TaskFormProps {
   initialData?: Task;
+  subjects: Subject[];
   onSuccess?: () => void;
 }
 
-export function TaskFormComponent({ initialData, onSuccess }: TaskFormProps) {
-  const form = useForm<z.infer<typeof formSchema>>({
+function TaskForm({ initialData, subjects, onSuccess }: TaskFormProps) {
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      subjectId: initialData?.subjectId || "",
-      title: initialData?.title || "",
-      description: initialData?.description || "",
-      dueDate: initialData?.dueDate ? initialData.dueDate.split('T')[0] : "",
-    },
+    defaultValues: initialData
+      ? {
+        subjectId: initialData.subjectId,
+        title: initialData.title,
+        description: initialData.description,
+        dueDate: initialData.dueDate.slice(0, 16),
+        isDelivered: initialData.isDelivered,
+      }
+      : {
+        subjectId: "",
+        title: "",
+        description: "",
+        dueDate: "",
+        isDelivered: false,
+      },
   });
 
-  const { data: subjects } = useGetAllSubjects();
   const { mutate: createTask, isPending: isCreating } = useCreateTask(() => {
     form.reset();
     onSuccess?.();
@@ -58,29 +74,30 @@ export function TaskFormComponent({ initialData, onSuccess }: TaskFormProps) {
 
   const isPending = isCreating || isUpdating;
 
+  function onSubmit(values: FormValues) {
+    const dataToSend = {
+      ...values,
+      dueDate: values.dueDate ? new Date(values.dueDate).toISOString() : "",
+    };
+
+    if (initialData) {
+      updateTask({ id: initialData.id, ...dataToSend });
+    } else {
+      createTask(dataToSend);
+    }
+  }
+
   useEffect(() => {
     if (initialData) {
       form.reset({
         subjectId: initialData.subject.id,
         title: initialData.title,
         description: initialData.description,
-        dueDate: initialData.dueDate.split('T')[0],
+        dueDate: initialData.dueDate.slice(0, 16),
+        isDelivered: initialData.isDelivered,
       });
     }
   }, [initialData, form]);
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    const data = {
-      ...values,
-      dueDate: new Date(values.dueDate).toISOString(),
-    };
-
-    if (initialData) {
-      updateTask({ id: initialData.id, ...data });
-    } else {
-      createTask(data);
-    }
-  }
 
   return (
     <Form {...form}>
@@ -91,14 +108,14 @@ export function TaskFormComponent({ initialData, onSuccess }: TaskFormProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Disciplina</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value || ""}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione a disciplina" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {subjects?.map((subject) => (
+                  {subjects.map((subject) => (
                     <SelectItem key={subject.id} value={subject.id}>
                       {subject.name}
                     </SelectItem>
@@ -116,7 +133,7 @@ export function TaskFormComponent({ initialData, onSuccess }: TaskFormProps) {
             <FormItem>
               <FormLabel>Título</FormLabel>
               <FormControl>
-                <Input placeholder="Ex: Prova Parcial" {...field} />
+                <Input placeholder="Ex: Fazer trabalho de matemática" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -129,7 +146,7 @@ export function TaskFormComponent({ initialData, onSuccess }: TaskFormProps) {
             <FormItem>
               <FormLabel>Descrição</FormLabel>
               <FormControl>
-                <Input placeholder="Ex: Capítulos 3 e 4" {...field} />
+                <Input placeholder="Ex: Entregar até sexta-feira" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -142,16 +159,78 @@ export function TaskFormComponent({ initialData, onSuccess }: TaskFormProps) {
             <FormItem>
               <FormLabel>Data de Entrega</FormLabel>
               <FormControl>
-                <Input type="date" {...field} />
+                <Input type="datetime-local" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+        <FormField
+          control={form.control}
+          name="isDelivered"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel>
+                  Tarefa Entregue
+                </FormLabel>
+                <FormDescription>
+                  Marque se esta tarefa já foi entregue.
+                </FormDescription>
+              </div>
+            </FormItem>
+          )}
+        />
         <Button type="submit" disabled={isPending}>
-          {isPending ? (initialData ? "Atualizando..." : "Salvando...") : (initialData ? "Atualizar Tarefa" : "Criar Tarefa")}
+          {isPending ? (initialData ? "Atualizando..." : "Criando...") : (initialData ? "Atualizar Tarefa" : "Criar Tarefa")}
         </Button>
       </form>
     </Form>
+  );
+}
+
+// --- Loading Skeleton ---
+function FormSkeleton() {
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2"><Skeleton className="h-4 w-20"/><Skeleton className="h-10 w-full"/></div>
+      <div className="space-y-2"><Skeleton className="h-4 w-20"/><Skeleton className="h-10 w-full"/></div>
+      <div className="space-y-2"><Skeleton className="h-4 w-28"/><Skeleton className="h-10 w-full"/></div>
+      <div className="space-y-2"><Skeleton className="h-4 w-24"/><Skeleton className="h-10 w-full"/></div>
+      <div className="space-y-2"><Skeleton className="h-4 w-12"/><Skeleton className="h-10 w-full"/></div>
+      <Skeleton className="h-10 w-32"/>
+    </div>
+  );
+}
+
+// --- Main Exported Component (Data Fetching Orchestrator) ---
+interface TaskFormComponentProps {
+  initialData?: Task;
+  onSuccess?: () => void;
+}
+
+export function TaskFormComponent({ initialData, onSuccess }: TaskFormComponentProps) {
+  const { data: subjects, isLoading: isLoadingSubjects } = useGetAllSubjects();
+
+  const isLoading = isLoadingSubjects;
+
+  // Show skeleton until subjects are loaded.
+  if (isLoading) {
+    return <FormSkeleton/>;
+  }
+
+  // Render the actual form only when data is available, passing it as props.
+  return (
+    <TaskForm
+      initialData={initialData}
+      subjects={subjects || []}
+      onSuccess={onSuccess}
+    />
   );
 }
