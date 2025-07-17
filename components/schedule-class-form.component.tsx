@@ -224,7 +224,7 @@ function ScheduleClassForm({ initialData, subjects, teachers, onSuccess }: Sched
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Dia da Semana</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value?.toString()}>
+                  <Select onValueChange={(value) => field.onChange(Number(value))} defaultValue={field.value?.toString()}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o dia da semana" />
