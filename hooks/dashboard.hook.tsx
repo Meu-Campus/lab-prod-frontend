@@ -44,14 +44,14 @@ export const useGetDashboardClasses = (page: number = 1, perPage: number = 3) =>
   });
 };
 
-// Hook para Próximas Tarefas (paginado, embora o dashboard possa usar apenas os primeiros itens)
-export const useGetDashboardUpcomingTasks = (page: number = 1, perPage: number = 4) => {
+// Hook para Próximas Tarefas (não paginado - retorna um array simples)
+export const useGetDashboardUpcomingTasks = () => {
   const api = useAxios();
-  return useQuery<PaginatedResponse<IDashboardTask>>({
-    queryKey: ["dashboard-upcoming-tasks", page, perPage],
+  return useQuery<IDashboardTask[]>({
+    queryKey: ["dashboard-upcoming-tasks"],
     queryFn: async () => {
-      const { data } = await api.get(`/tasks/upcoming?page=${page}&perPage=${perPage}`);
-      return data.data; // Espera a estrutura { data: { page, perPage, pages, list, total } }
+      const { data } = await api.get("/tasks/upcoming");
+      return data.data; // Espera a estrutura { data: [...] }
     },
   });
 };

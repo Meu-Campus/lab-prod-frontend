@@ -12,19 +12,15 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function Home() {
   const [classesPage, setClassesPage] = useState(1);
-  const [tasksPage, setTasksPage] = useState(1); // Embora não paginado no UI, o hook é paginado
   const [subjectsPage, setSubjectsPage] = useState(1);
 
   const { data: me, isLoading: isLoadingMe } = useGetMeInfo();
   const { data: paginatedClasses, isLoading: isLoadingClasses } = useGetDashboardClasses(classesPage, 6);
-  const { data: paginatedTasks, isLoading: isLoadingTasks } = useGetDashboardUpcomingTasks(tasksPage, 4); // Exibindo 4 tarefas
+  const { data: tasks, isLoading: isLoadingTasks } = useGetDashboardUpcomingTasks();
   const { data: paginatedSubjects, isLoading: isLoadingSubjects } = useGetDashboardSubjects(subjectsPage, 3);
 
   const classes = paginatedClasses?.list;
   const totalClassesPages = paginatedClasses?.pages || 1;
-
-  const tasks = paginatedTasks?.list;
-  // const totalTasksPages = paginatedTasks?.pages || 1; // Não usado para UI de paginação de tarefas
 
   const subjects = paginatedSubjects?.list;
   const totalSubjectsPages = paginatedSubjects?.pages || 1;
