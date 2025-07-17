@@ -16,7 +16,7 @@ export default function Home() {
   const [subjectsPage, setSubjectsPage] = useState(1);
 
   const { data: me, isLoading: isLoadingMe } = useGetMeInfo();
-  const { data: paginatedClasses, isLoading: isLoadingClasses } = useGetDashboardClasses(classesPage, 3);
+  const { data: paginatedClasses, isLoading: isLoadingClasses } = useGetDashboardClasses(classesPage, 6);
   const { data: paginatedTasks, isLoading: isLoadingTasks } = useGetDashboardUpcomingTasks(tasksPage, 4); // Exibindo 4 tarefas
   const { data: paginatedSubjects, isLoading: isLoadingSubjects } = useGetDashboardSubjects(subjectsPage, 3);
 
