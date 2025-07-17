@@ -2,45 +2,67 @@
 
 import { HeaderComponent } from "@/components/header-component";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
-import { CalendarDays, Plus, UserPlus } from "lucide-react";
-import { SubjectComponent } from "@/components/subject.component";
-import { TeacherFormComponent } from "@/components/teacher-form.component";
-import { ScheduleClassFormComponent } from "@/components/schedule-class-form.component";
-import { TaskFormComponent } from "@/components/task-form.component";
-import { useGetClasses } from "@/hooks/class.hook";
-import { useGetMeInfo } from "@/hooks/me-info.hook";
-import { useGetTasks } from "@/hooks/task.hook";
-import { useGetSubjects } from "@/hooks/subject.hook";
-import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
-
+import { useGetMeInfo } from "@/hooks/me-info.hook";
+import { useGetDashboardClasses, useGetDashboardUpcomingTasks, useGetDashboardSubjects } from "@/hooks/dashboard.hook";
+import Link from "next/link";
+import { useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function Home() {
+  const [classesPage, setClassesPage] = useState(1);
+  const [tasksPage, setTasksPage] = useState(1); // Embora não paginado no UI, o hook é paginado
+  const [subjectsPage, setSubjectsPage] = useState(1);
+
   const { data: me, isLoading: isLoadingMe } = useGetMeInfo();
-  const { data: classes, isLoading: isLoadingClasses } = useGetClasses();
-  const { data: tasks, isLoading: isLoadingTasks } = useGetTasks();
-  const { data: subjects, isLoading: isLoadingSubjects } = useGetSubjects();
+  const { data: paginatedClasses, isLoading: isLoadingClasses } = useGetDashboardClasses(classesPage, 3);
+  const { data: paginatedTasks, isLoading: isLoadingTasks } = useGetDashboardUpcomingTasks(tasksPage, 4); // Exibindo 4 tarefas
+  const { data: paginatedSubjects, isLoading: isLoadingSubjects } = useGetDashboardSubjects(subjectsPage, 3);
+
+  const classes = paginatedClasses?.list;
+  const totalClassesPages = paginatedClasses?.pages || 1;
+
+  const tasks = paginatedTasks?.list;
+  // const totalTasksPages = paginatedTasks?.pages || 1; // Não usado para UI de paginação de tarefas
+
+  const subjects = paginatedSubjects?.list;
+  const totalSubjectsPages = paginatedSubjects?.pages || 1;
+
   return (
     <div className="w-full">
-      
       <div className="container mx-auto px-4 py-4">
-      <h1 className="text-2xl text-foreground mb-2">Bem-vindo de volta, {isLoadingMe ? <Skeleton className="h-8 w-32 inline-block" /> : me?.name}</h1>
-      <p className="text-muted-foreground mb-4">
-        Aqui está um resumo do seu dia acadêmico
-      </p>
+        <h1 className="text-2xl text-foreground mb-2">Bem-vindo de volta, {isLoadingMe ? <Skeleton className="h-8 w-32 inline-block" /> : me?.name}</h1>
+        <p className="text-muted-foreground mb-4">
+          Aqui está um resumo do seu dia acadêmico
+        </p>
 
-      <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           {/* Aulas de Hoje */}
           <Card className="col-span-2">
             <CardContent className="p-3">
-              <h2 className="text-lg font-semibold mb-3">
-                Aulas de Hoje <span
-                className="text-sm text-muted-foreground float-right">Quinta-feira, 15 de Janeiro</span>
-              </h2>
+              <div className="flex justify-between items-center mb-3">
+                <h2 className="text-lg font-semibold">Aulas de Hoje</h2>
+                <div className="flex items-center space-x-1">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setClassesPage(p => Math.max(1, p - 1))}
+                    disabled={classesPage === 1}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <span className="text-sm text-muted-foreground">{classesPage}/{totalClassesPages}</span>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setClassesPage(p => Math.min(totalClassesPages, p + 1))}
+                    disabled={classesPage === totalClassesPages}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
               <div className="space-y-2">
                 {isLoadingClasses ? (
                   <div className="space-y-2">
@@ -54,19 +76,25 @@ export default function Home() {
                       <CardContent className="p-3">
                         <div className="font-medium text-sm">{aula.subject.name}</div>
                         <div className="text-xs text-muted-foreground">{aula.teacher.name}</div>
-                        <div className="text-xs">{new Date(aula.startTime).toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })} - {new Date(aula.endTime).toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}</div>
-                        <div className="text-xs">{aula.room}</div>
+                        <div className="text-xs">
+                          Horário: {
+                            aula.isRecurring ? (
+                              aula.startTime
+                            ) : (
+                              new Date(aula.startTime).toLocaleTimeString([], {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                timeZone: 'UTC'
+                              })
+                            )
+                          }
+                        </div>
+                        <div className="text-xs">Sala: {aula.room}</div>
                       </CardContent>
                     </Card>
                   ))
                 ) : (
-                  <p className="text-center text-muted-foreground text-sm">Nenhuma aula para hoje.</p>
+                  <p className="text-center text-muted-foreground text-sm py-10">Nenhuma aula para hoje.</p>
                 )}
               </div>
             </CardContent>
@@ -104,7 +132,28 @@ export default function Home() {
         <div className="mt-6">
           <Card>
             <CardContent className="p-3">
-              <h2 className="text-lg font-semibold mb-3">Disciplinas do Semestre</h2>
+              <div className="flex justify-between items-center mb-3">
+                <h2 className="text-lg font-semibold">Disciplinas do Semestre</h2>
+                <div className="flex items-center space-x-1">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setSubjectsPage(p => Math.max(1, p - 1))}
+                    disabled={subjectsPage === 1}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <span className="text-sm text-muted-foreground">{subjectsPage}/{totalSubjectsPages}</span>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setSubjectsPage(p => Math.min(totalSubjectsPages, p + 1))}
+                    disabled={subjectsPage === totalSubjectsPages}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
               <div className="grid grid-cols-3 gap-3 text-sm">
                 {isLoadingSubjects ? (
                   <>
@@ -120,27 +169,13 @@ export default function Home() {
                     </div>
                   ))
                 ) : (
-                  <p className="text-center text-muted-foreground col-span-3 text-sm">Nenhuma disciplina cadastrada.</p>
+                  <p className="text-center text-muted-foreground col-span-3 text-sm py-10">Nenhuma disciplina cadastrada.</p>
                 )}
               </div>
             </CardContent>
           </Card>
         </div>
-
-        
       </div>
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-

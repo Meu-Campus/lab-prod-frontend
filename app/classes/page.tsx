@@ -110,7 +110,42 @@ export default function ClassesPage() {
                   <TableCell className="font-medium">{aula.subject.name}</TableCell>
                   <TableCell>{aula.teacher.name}</TableCell>
                   <TableCell>{aula.room}</TableCell>
-                  <TableCell>{new Date(aula.startTime).toLocaleTimeString()} - {new Date(aula.endTime).toLocaleTimeString()}</TableCell>
+                  
+                  <TableCell>
+                    {aula.startTime ? (
+                      new Date(aula.startTime).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        timeZone: 'UTC'
+                      })
+                    ) : (
+                      '-'
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button variant="ghost" size="icon" onClick={() => handleEditClick(aula)}>
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Essa ação não pode ser desfeita. Isso irá deletar permanentemente a aula.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => deleteClass(aula.id)}>Deletar</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="icon" onClick={() => handleEditClick(aula)}>
                       <Edit className="h-4 w-4" />
