@@ -10,23 +10,21 @@ interface ScheduleClassDto {
   subjectId: string;
   teacherId: string;
   startTime?: string;
-  endTime?: string;
   room: string;
   isRecurring?: boolean;
-  dayOfWeek?: string;
+  dayOfWeek?: number;
 }
 
 export interface Class {
   id: string;
   startTime?: string;
-  endTime?: string;
   room: string;
   teacher: Teacher;
   subject: Subject;
   teacherId: string;
   subjectId: string;
   isRecurring?: boolean;
-  dayOfWeek?: string;
+  dayOfWeek?: number;
 }
 
 interface UpdateClassDto {
@@ -34,10 +32,9 @@ interface UpdateClassDto {
   subjectId?: string;
   teacherId?: string;
   startTime?: string;
-  endTime?: string;
   room?: string;
   isRecurring?: boolean;
-  dayOfWeek?: string;
+  dayOfWeek?: number;
 }
 
 export interface Subject {
@@ -95,7 +92,7 @@ export function useGetClasses(page: number = 1, perPage: number = 10, search: st
         url += `&search=${search}`;
       }
       const response = await api.get(url);
-      return response.data.data;
+      return response.data.data; // Assuming the paginated object is in data.data
     },
   });
 }
@@ -117,3 +114,22 @@ export function useDeleteClass() {
     },
   });
 }
+
+export interface IDashboardClass {
+  id: string;
+  subject: Subject;
+  teacher: Teacher;
+  startTime: string;
+  room: string;
+}
+
+export const useGetDashboardClasses = () => {
+  const api = useAxios();
+  return useQuery<IDashboardClass[]>({
+    queryKey: ["classes-dashboard"],
+    queryFn: async () => {
+      const { data } = await api.get("/classes/dashboard");
+      return data; // Revertido: Espera um array direto
+    },
+  });
+};

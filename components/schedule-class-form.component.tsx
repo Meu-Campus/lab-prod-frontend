@@ -28,50 +28,21 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect } from "react";
 
 import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 
 // Schema for form validation
 const formSchema = z.object({
   subjectId: z.string().min(1, "A disciplina é obrigatória."),
   teacherId: z.string().min(1, "O professor é obrigatório."),
+  date: z.string().optional(),
   startTime: z.string().optional(),
-  endTime: z.string().optional(),
   room: z.string().min(1, "A sala é obrigatória."),
   isRecurring: z.boolean().default(false).optional(),
-  dayOfWeek: z.string().optional(),
-}).superRefine((data, ctx) => {
-  if (!data.isRecurring) {
-    if (!data.startTime) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "O horário de início é obrigatório para aulas não periódicas.",
-        path: ["startTime"],
-      });
-    }
-    if (!data.endTime) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "O horário de fim é obrigatório para aulas não periódicas.",
-        path: ["endTime"],
-      });
-    }
-  } else {
-    if (!data.dayOfWeek) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "O dia da semana é obrigatório para aulas periódicas.",
-        path: ["dayOfWeek"],
-      });
-    }
-  }
+  dayOfWeek: z.string().optional().transform(val => val ? Number(val) : undefined),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 // --- Data-dependent Form Component ---
-// This component is only rendered when all its data dependencies are met.
-// This prevents the race condition that was causing the issue.
-
 interface ScheduleClassFormProps {
   initialData?: Class;
   subjects: Subject[];
@@ -80,29 +51,27 @@ interface ScheduleClassFormProps {
 }
 
 function ScheduleClassForm({ initialData, subjects, teachers, onSuccess }: ScheduleClassFormProps) {
-  
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    // Set defaultValues directly. This is now safe because this component
-    // is not rendered until `subjects` and `teachers` are loaded.
     defaultValues: initialData
       ? {
         subjectId: initialData.subjectId,
         teacherId: initialData.teacherId,
-        startTime: initialData.startTime?.slice(0, 16),
-        endTime: initialData.endTime?.slice(0, 16),
+        date: initialData.startTime ? initialData.startTime.split('T')[0] : "",
+        startTime: initialData.startTime ? initialData.startTime.split('T')[1].slice(0, 5) : "",
         room: initialData.room,
         isRecurring: initialData.isRecurring || false,
-        dayOfWeek: initialData.dayOfWeek || "",
+        dayOfWeek: initialData.dayOfWeek ? Number(initialData.dayOfWeek) : undefined,
       }
       : {
         subjectId: "",
         teacherId: "",
+        date: "",
         startTime: "",
-        endTime: "",
         room: "",
         isRecurring: false,
-        dayOfWeek: "",
+        dayOfWeek: undefined,
       },
   });
 
@@ -119,12 +88,28 @@ function ScheduleClassForm({ initialData, subjects, teachers, onSuccess }: Sched
   const isPending = isScheduling || isUpdating;
 
   function onSubmit(values: FormValues) {
+    let finalStartTime: string | undefined;
+
+    if (!values.isRecurring && values.date && values.startTime) {
+      // For non-recurring, combine date and time into a full ISO string
+      try {
+        finalStartTime = new Date(`${values.date}T${values.startTime}`).toISOString();
+      } catch (e) {
+        console.error("Invalid date/time format", e);
+        finalStartTime = undefined;
+      }
+    } else if (values.isRecurring && values.startTime) {
+      // For recurring, startTime is just the time string
+      finalStartTime = values.startTime;
+    }
+
     const dataToSend = {
       ...values,
-      startTime: values.startTime || undefined,
-      endTime: values.endTime || undefined,
-      dayOfWeek: values.dayOfWeek || undefined,
+      startTime: finalStartTime,
+      dayOfWeek: values.dayOfWeek ? Number(values.dayOfWeek) : undefined,
     };
+    // The 'date' field is only for the form, not for the API
+    delete (dataToSend as any).date;
 
     if (initialData) {
       updateClass({ id: initialData.id, ...dataToSend });
@@ -138,26 +123,26 @@ function ScheduleClassForm({ initialData, subjects, teachers, onSuccess }: Sched
       form.reset({
         subjectId: initialData.subjectId,
         teacherId: initialData.teacherId,
-        startTime: initialData.startTime?.slice(0, 16),
-        endTime: initialData.endTime?.slice(0, 16),
+        date: initialData.startTime ? initialData.startTime.split('T')[0] : "",
+        startTime: initialData.startTime ? initialData.startTime.split('T')[1].slice(0, 5) : "",
         room: initialData.room,
         isRecurring: initialData.isRecurring || false,
-        dayOfWeek: initialData.dayOfWeek || "",
+        dayOfWeek: initialData.dayOfWeek ? Number(initialData.dayOfWeek) : undefined,
       });
     }
   }, [initialData, form]);
 
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {/* Subject and Teacher fields remain the same */}
         <FormField
           control={form.control}
           name="subjectId"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Disciplina</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
+              <Select onValueChange={field.onChange} value={field.value || ""}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione a disciplina"/>
@@ -181,7 +166,7 @@ function ScheduleClassForm({ initialData, subjects, teachers, onSuccess }: Sched
           render={({ field }) => (
             <FormItem>
               <FormLabel>Professor</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} defaultValue={field.value?.toString()}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione o professor"/>
@@ -223,34 +208,64 @@ function ScheduleClassForm({ initialData, subjects, teachers, onSuccess }: Sched
         />
 
         {isRecurring ? (
-          <FormField
-            control={form.control}
-            name="dayOfWeek"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Dia da Semana</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+          <>
+            {/* Fields for Recurring classes */}
+            <FormField
+              control={form.control}
+              name="dayOfWeek"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Dia da Semana</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value?.toString()}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o dia da semana" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="1">Segunda-feira</SelectItem>
+                      <SelectItem value="2">Terça-feira</SelectItem>
+                      <SelectItem value="3">Quarta-feira</SelectItem>
+                      <SelectItem value="4">Quinta-feira</SelectItem>
+                      <SelectItem value="5">Sexta-feira</SelectItem>
+                      <SelectItem value="6">Sábado</SelectItem>
+                      <SelectItem value="7">Domingo</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="startTime"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Horário</FormLabel>
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o dia da semana" />
-                    </SelectTrigger>
+                    <Input type="time" {...field} value={field.value || ''} />
                   </FormControl>
-                  <SelectContent>
-                    <SelectItem value="MONDAY">Segunda-feira</SelectItem>
-                    <SelectItem value="TUESDAY">Terça-feira</SelectItem>
-                    <SelectItem value="WEDNESDAY">Quarta-feira</SelectItem>
-                    <SelectItem value="THURSDAY">Quinta-feira</SelectItem>
-                    <SelectItem value="FRIDAY">Sexta-feira</SelectItem>
-                    <SelectItem value="SATURDAY">Sábado</SelectItem>
-                    <SelectItem value="SUNDAY">Domingo</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
         ) : (
           <>
+            {/* Fields for Non-Recurring classes */}
+            <FormField
+              control={form.control}
+              name="date"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Data</FormLabel>
+                  <FormControl>
+                    <Input type="date" {...field} value={field.value || ''} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="startTime"
@@ -258,20 +273,7 @@ function ScheduleClassForm({ initialData, subjects, teachers, onSuccess }: Sched
                 <FormItem>
                   <FormLabel>Horário de Início</FormLabel>
                   <FormControl>
-                    <Input type="datetime-local" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="endTime"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Horário de Fim</FormLabel>
-                  <FormControl>
-                    <Input type="datetime-local" {...field} />
+                    <Input type="time" {...field} value={field.value || ''} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -279,6 +281,8 @@ function ScheduleClassForm({ initialData, subjects, teachers, onSuccess }: Sched
             />
           </>
         )}
+        
+        {/* Room and Submit button remain the same */}
         <FormField
           control={form.control}
           name="room"
@@ -288,7 +292,7 @@ function ScheduleClassForm({ initialData, subjects, teachers, onSuccess }: Sched
               <FormControl>
                 <Input placeholder="Ex: Sala 201" {...field} />
               </FormControl>
-              <FormMessage />
+              <FormMessage/>
             </FormItem>
           )}
         />
