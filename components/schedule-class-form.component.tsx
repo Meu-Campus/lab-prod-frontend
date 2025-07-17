@@ -37,7 +37,7 @@ const formSchema = z.object({
   startTime: z.string().optional(),
   room: z.string().min(1, "A sala é obrigatória."),
   isRecurring: z.boolean().default(false).optional(),
-  dayOfWeek: z.string().optional().transform(val => val ? Number(val) : undefined),
+  dayOfWeek: z.number().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -88,28 +88,36 @@ function ScheduleClassForm({ initialData, subjects, teachers, onSuccess }: Sched
   const isPending = isScheduling || isUpdating;
 
   function onSubmit(values: FormValues) {
-    let finalStartTime: string | undefined;
-
-    if (!values.isRecurring && values.date && values.startTime) {
-      // For non-recurring, combine date and time into a full ISO string
-      try {
-        finalStartTime = new Date(`${values.date}T${values.startTime}`).toISOString();
-      } catch (e) {
-        console.error("Invalid date/time format", e);
-        finalStartTime = undefined;
-      }
-    } else if (values.isRecurring && values.startTime) {
-      // For recurring, startTime is just the time string
-      finalStartTime = values.startTime;
-    }
-
-    const dataToSend = {
-      ...values,
-      startTime: finalStartTime,
-      dayOfWeek: values.dayOfWeek ? Number(values.dayOfWeek) : undefined,
+    let dataToSend: any = {
+      subjectId: values.subjectId,
+      teacherId: values.teacherId,
+      room: values.room,
+      isRecurring: values.isRecurring,
     };
-    // The 'date' field is only for the form, not for the API
-    delete (dataToSend as any).date;
+
+    if (values.isRecurring) {
+      // For recurring classes
+      dataToSend.dayOfWeek = values.dayOfWeek; // Enviando como string, conforme erro do backend
+      dataToSend.startTime = values.startTime; // This is already "HH:MM" from the input
+      // Do not send 'date' for recurring classes
+    } else {
+      // For non-recurring classes
+      if (values.date && values.startTime) {
+        try {
+          const fullIsoString = new Date(`${values.date}T${values.startTime}`).toISOString();
+          dataToSend.date = fullIsoString; // 'date' now also contains the full ISO string
+          dataToSend.startTime = fullIsoString; // 'startTime' is also the full ISO string
+        } catch (e) {
+          console.error("Invalid date/time format for non-recurring class", e);
+          dataToSend.date = undefined;
+          dataToSend.startTime = undefined;
+        }
+      } else {
+        dataToSend.date = undefined;
+        dataToSend.startTime = undefined;
+      }
+      // Do not send 'dayOfWeek' for non-recurring classes
+    }
 
     if (initialData) {
       updateClass({ id: initialData.id, ...dataToSend });
