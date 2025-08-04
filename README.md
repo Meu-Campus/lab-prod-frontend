@@ -12,7 +12,7 @@ Você vai precisar do [Node.js](https://nodejs.org/) (versão 20.x ou superior) 
 
 ### Variáveis de Ambiente
 
-Antes de rodar a aplicação, você precisa criar um arquivo `.env.local` na raiz do projeto. Você pode copiar o exemplo abaixo:
+Antes de rodar a aplicação, você precisa criar um arquivo `.env` na raiz do projeto. Você pode copiar o exemplo abaixo:
 
 ```bash
 NEXT_PUBLIC_API_URL=http://localhost:3333
