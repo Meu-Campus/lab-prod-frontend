@@ -31,7 +31,7 @@ interface IProps {
 }
 
 export function HeaderComponent({ loggedIn }: IProps) {
-  const { data: user, isLoading, isError } = useGetMeInfo();
+  const { data: user, isLoading, isError } = useGetMeInfo(false);
   const [isEditOpen, setEditOpen] = useState(false);
   const router = useRouter();
 

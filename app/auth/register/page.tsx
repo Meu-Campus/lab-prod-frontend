@@ -51,7 +51,7 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen w-full">
-      <HeaderComponent />
+      <HeaderComponent loggedIn={false} />
 
       <main
         id="login-main"

@@ -9,7 +9,7 @@ export type MeInfo = {
   avatar?: string;
 }
 
-export function useGetMeInfo() {
+export function useGetMeInfo(enabled: boolean = true) {
   const api = useAxios();
 
   return useQuery<MeInfo, AxiosError>({
@@ -19,5 +19,6 @@ export function useGetMeInfo() {
       return response.data.data;
     },
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    enabled, // só executa se for true
   });
 }
